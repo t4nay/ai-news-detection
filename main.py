@@ -71,7 +71,48 @@ y_predicted = text_clf.predict(dataset.data)
 # Print the classification report
 print(metrics.classification_report(y_test, y_predicted, target_names=dataset.target_names))
 f = open("/Users/tanay/Desktop/important\ files/sklearn_tut_workspace/skeletons/test.txt","r")
-testdata = f.read()
+testdata = """
+ 'Strategic options' for free-to-air TV under review 
+ Updated
+
+The Federal Government has confirmed it is reviewing whether new technology can allow television broadcast to remain free to viewers.
+
+Almost all Australians who receive their free-to-air television via cable, satellite or fibre-optic lines receive a signal at a cost of around $75 per month.
+
+The Convergence Review has recommended that pay TV operators, cable companies and Internet service providers receive a fee to license their signals for free.
+
+This could offer the $75 subscription fee to be applied to someone who gets the service via the internet.
+
+"One of the recommendations made is that there should be a single compulsory right that anyone can access over the internet," Minister for Communications Stephen Conroy said.
+
+"There are many ways that one could engage in one's own local radio service or local television service or access a video-on-demand platform.
+
+"But this would be the opportunity for somebody to pay for their free-to-air viewing on a subscription model or free-to-air viewing on a licence fee model.
+
+"They would get the benefit of a more effective competitor who would provide the same service to their customers."
+
+Mr Conroy says other stakeholders, including unions, are also raising concerns about whether infrastructure upgrades would be required to support the changes.
+
+"The Government is going to ensure that people who currently receive their free-to-air television in that way will continue to get their free-to-air television free of charge," he said.
+
+"But also it's important that no infrastructure is lost."
+
+The review by the Convergence Review group, led by former Telstra chief Sol Trujillo, also recommended a cap on advertising on all local broadcasters' digital channels to keep costs down.
+
+Saying that time had come for change, the report said "the commercial channels' business models are broken".
+
+"As the report discusses today, the market which provides free-to-air digital television - from both competing providers, such as major subscription digital TV, broadcast and associated online businesses as well as direct competitors - is insufficiently competitive to maintain competition or to produce the benefits of strong market demand, sustainable investment, efficiency and innovation in free-to-air," it said.
+
+But the report found that even the large number of viewers in major markets such as Sydney and Melbourne have more than 30 channels in which to choose from.
+
+From next year, the three networks that currently broadcast to most viewers through free-to-air channels - Nine, Ten and Seven - will switch to digital channels.
+
+ABC/AAP
+
+Topics: television-broadcasting, business-economics-and-finance, industry, broadcasting, information-and-communication, internet-culture, government-and-politics, federal-government, australia
+
+First posted
+"""
 for text_clf in text_clfs:
     try:
         text_clf.predict(testdata)
