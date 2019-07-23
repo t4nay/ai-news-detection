@@ -1,16 +1,3 @@
-"""Build a sentiment analysis / polarity model
-
-Sentiment analysis can be casted as a binary text classification problem,
-that is fitting a linear classifier on features extracted from the text
-of the user messages so as to guess wether the opinion of the author is
-positive or negative.
-
-In this examples we will use a movie review dataset.
-
-"""
-# Author: Olivier Grisel <olivier.grisel@ensta.org>
-# License: Simplified BSD
-
 import sys
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
@@ -29,11 +16,8 @@ import logging
 from optparse import OptionParser
 import sys
 from time import time
-import foreshadow as fs
-import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.exceptions import NotFittedError
-
+from sklearn.linear_model import SGDClassifier
 import numpy as np
 
 
@@ -51,7 +35,50 @@ print("n_samples: %d" % len(dataset.data))
 
 
 # split the dataset in training and test set:
-docs_train, docs_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.25, random_state=None)
-shadow = fs.Foreshadow()
-shadow.fit(dataset.data, dataset.target)
-shadow.score(X_test, y_test)
+docs_train, docs_test, y_train, y_test = train_test_split(
+    dataset.data, dataset.target, test_size=0.25, random_state=None)
+
+# TASK: Build a vectorizer / classifier pipeline that filters out tokens
+# that are too rare or too frequent
+count_vect = CountVectorizer()
+X_train_counts = count_vect.fit_transform(dataset.data)
+X_train_counts.shape
+
+text_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', MultinomialNB()),
+])
+text_clf.fit(dataset.data, dataset.target)
+
+# TASK: Build a grid search to find out whether unigrams or bigrams are
+# more useful.
+parameters = {
+'vect__ngram_range': [(1, 1), (1, 2)],
+'tfidf__use_idf': (True, False),
+'clf__alpha': (1e-2, 1e-3),
+}
+
+gs_clf = GridSearchCV(text_clf, parameters, cv=5, iid=False, n_jobs=-1)
+# Fit the pipeline on the training set using grid search for the parameters
+gs_clf = gs_clf.fit(dataset.data[:5000], dataset.target[:5000])
+
+# TASK: print the cross-validated scores for the each parameters set
+# explored by the grid search
+print (gs_clf.best_score_)
+
+for param_name in sorted(parameters.keys()):
+    print("%s: %r" % (param_name, gs_clf.best_params_[param_name]))
+# TASK: Predict the outcome on the testing set and store it in a variable
+# named y_predicted
+y_test = dataset.target
+y_predicted = text_clf.predict(dataset.data)
+
+# Print the classification report
+print(metrics.classification_report(y_test, y_predicted, target_names=dataset.target_names))
+# Print and plot the confusion matrix
+cm = metrics.confusion_matrix(y_test, y_predicted)
+print(cm)
+
+plt.matshow(cm)
+plt.show()
