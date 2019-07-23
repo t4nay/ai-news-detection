@@ -29,7 +29,7 @@ from sklearn import svm
 import numpy as np
 from sklearn import cross_validation
 from sklearn import datasets
-
+from sklearn.model_selection import cross_val_score
 
 def is_interactive():
     return not hasattr(sys.modules['__main__'], '__file__')
@@ -40,7 +40,7 @@ dataset = load_files("/Users/tanay/Desktop/news_file/", description= None, categ
 
 # split the dataset in training and test set:
 docs_train, docs_test, y_train, y_test = train_test_split(
-    dataset.data, dataset.target, test_size=0.4, random_state=None)
+    dataset.data, dataset.target, test_size=0.3, random_state=None)
 
 print("n_samples: %d" % len(dataset.data))
 
