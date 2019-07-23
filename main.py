@@ -46,7 +46,9 @@ X_train_counts.shape
 text_clf = Pipeline([
     ('vect', CountVectorizer()),
     ('tfidf', TfidfTransformer()),
-    ('clf', MultinomialNB()),
+    ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                          alpha=1e-3, random_state=42,
+                          max_iter=5, tol=None)),
 ])
 text_clf.fit(dataset.data, dataset.target)
 
