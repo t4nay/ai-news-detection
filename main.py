@@ -19,6 +19,12 @@ from time import time
 from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import SGDClassifier
 import numpy as np
+from pandas import DataFrame
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+from matplotlib.collections import QuadMesh
+import seaborn as sn
 
 def is_interactive():
     return not hasattr(sys.modules['__main__'], '__file__')
@@ -54,7 +60,7 @@ parameters = {
 
 gs_clf = GridSearchCV(text_clf, parameters, cv=5, iid=False, n_jobs=-1)
 # Fit the pipeline on the training set using grid search for the parameters
-gs_clf = gs_clf.fit(dataset.data[:5000], dataset.target[:5000])
+gs_clf = gs_clf.fit(dataset.data[:6000], dataset.target[:6000])
 
 # TASK: print the cross-validated scores for the each parameters set
 # explored by the grid search
@@ -70,6 +76,9 @@ y_predicted = text_clf.predict(dataset.data)
 # Print the classification report
 print(metrics.classification_report(y_test, y_predicted, target_names=dataset.target_names))
 # Print and plot the confusion matrix
+
+
+
 cm = metrics.confusion_matrix(y_test, y_predicted)
 print(cm)
 plt.matshow(cm)
