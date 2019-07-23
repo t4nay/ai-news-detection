@@ -21,12 +21,7 @@ from sklearn.linear_model import SGDClassifier
 import numpy as np
 
 
-# NOTE: we put the following in a 'if __name__ == "__main__"' protected
-# block to be able to use a multi-core grid search that also works under
-# Windows, see: http://docs.python.org/library/multiprocessing.html#windows
-# The multiprocessing module is used as the backend of joblib.Parallel
-# that is used when n_jobs != 1 in GridSearchCV
-# Display progress logs on stdout
+
 def is_interactive():
     return not hasattr(sys.modules['__main__'], '__file__')
 # the training data folder must be passed as first argument
