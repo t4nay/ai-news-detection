@@ -25,32 +25,37 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.collections import QuadMesh
 import seaborn as sn
+from sklearn import svm
+import numpy as np
+from sklearn import cross_validation
+from sklearn import datasets
+
 
 def is_interactive():
     return not hasattr(sys.modules['__main__'], '__file__')
 # the training data folder must be passed as first argument
 dataset = load_files("/Users/tanay/Desktop/news_file/", description= None, categories= None, load_content = True, encoding='latin1', decode_error='strict', shuffle= False, random_state=42)
-print("n_samples: %d" % len(dataset.data))
+
 
 
 # split the dataset in training and test set:
 docs_train, docs_test, y_train, y_test = train_test_split(
-    dataset.data, dataset.target, test_size=0.25, random_state=None)
+    dataset.data, dataset.target, test_size=0.4, random_state=None)
+
+print("n_samples: %d" % len(dataset.data))
 
 # TASK: Build a vectorizer / classifier pipeline that filters out tokens
 # that are too rare or too frequent
 count_vect = CountVectorizer()
-X_train_counts = count_vect.fit_transform(dataset.data)
+X_train_counts = count_vect.fit_transform(docs_train)
 X_train_counts.shape
 
 text_clf = Pipeline([
     ('vect', CountVectorizer()),
     ('tfidf', TfidfTransformer()),
-    ('clf', SGDClassifier(loss='hinge', penalty='l2',
-                          alpha=1e-3, random_state=42,
-                          max_iter=5, tol=None)),
+    ('clf', MultinomialNB()),
 ])
-text_clf.fit(dataset.data, dataset.target)
+text_clf.fit(docs_train, y_train)
 
 # TASK: Build a grid search to find out whether unigrams or bigrams are
 # more useful.
@@ -62,7 +67,7 @@ parameters = {
 
 gs_clf = GridSearchCV(text_clf, parameters, cv=5, iid=False, n_jobs=-1)
 # Fit the pipeline on the training set using grid search for the parameters
-gs_clf = gs_clf.fit(dataset.data[:6000], dataset.target[:6000])
+gs_clf = gs_clf.fit(docs_train[:6000], y_train[:6000])
 
 # TASK: print the cross-validated scores for the each parameters set
 # explored by the grid search
@@ -72,16 +77,14 @@ for param_name in sorted(parameters.keys()):
     print("%s: %r" % (param_name, gs_clf.best_params_[param_name]))
 # TASK: Predict the outcome on the testing set and store it in a variable
 # named y_predicted
-y_test = dataset.target
-y_predicted = text_clf.predict(dataset.data)
-
+y_predicted = text_clf.predict(docs_test)
 # Print the classification report
 print(metrics.classification_report(y_test, y_predicted, target_names=dataset.target_names))
+
+
 # Print and plot the confusion matrix
-
-
-
 cm = metrics.confusion_matrix(y_test, y_predicted)
 print(cm)
+
 plt.matshow(cm)
 plt.show()
