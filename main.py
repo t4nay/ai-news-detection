@@ -24,10 +24,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.collections import QuadMesh
-import seaborn as sn
 from sklearn import svm
 import numpy as np
-from sklearn import cross_validation
 from sklearn.svm import SVC
 from sklearn import datasets
 from sklearn.model_selection import cross_val_score
@@ -42,7 +40,7 @@ dataset = load_files("/Users/tanay/Desktop/news_file/", description= None, categ
 
 # split the dataset in training and test set:
 docs_train, docs_test, y_train, y_test = train_test_split(
-    dataset.data, dataset.target, test_size=0.15, random_state=42)
+    dataset.data, dataset.target, test_size=0.2, random_state=42)
 print("n_samples: %d" % len(dataset.data))
 
 # TASK: Build a vectorizer / classifier pipeline that filters out tokens
@@ -54,7 +52,9 @@ X_train_counts.shape
 text_clf = Pipeline([
     ('vect', CountVectorizer(stop_words='english')),
     ('tfidf', TfidfTransformer()),
-    ('clf', MultinomialNB(FitPrior=False)),
+    ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                          alpha=1e-3, random_state=42,
+                          max_iter=5, tol=None)),
 
 ])
 text_clf.fit(docs_train, y_train)
