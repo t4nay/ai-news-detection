@@ -27,6 +27,8 @@ from matplotlib.collections import QuadMesh
 import seaborn as sn
 from sklearn import svm
 import numpy as np
+from sklearn import cross_validation
+from sklearn.svm import SVC
 from sklearn import datasets
 from sklearn.model_selection import cross_val_score
 
@@ -40,7 +42,7 @@ dataset = load_files("/Users/tanay/Desktop/news_file/", description= None, categ
 
 # split the dataset in training and test set:
 docs_train, docs_test, y_train, y_test = train_test_split(
-    dataset.data, dataset.target, test_size=0.2, random_state=None)
+    dataset.data, dataset.target, test_size=0.15, random_state=42)
 print("n_samples: %d" % len(dataset.data))
 
 # TASK: Build a vectorizer / classifier pipeline that filters out tokens
@@ -50,9 +52,12 @@ X_train_counts = count_vect.fit_transform(docs_train)
 X_train_counts.shape
 
 text_clf = Pipeline([
-    ('vect', CountVectorizer()),
+    ('vect', CountVectorizer(stop_words='english')),
     ('tfidf', TfidfTransformer()),
-    ('clf', MultinomialNB()),
+    ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                          alpha=1e-3, random_state=42,
+                          max_iter=5, tol=None)),
+
 ])
 text_clf.fit(docs_train, y_train)
 
@@ -64,7 +69,7 @@ parameters = {
 'clf__alpha': (1e-2, 1e-3),
 }
 
-gs_clf = GridSearchCV(text_clf, parameters, cv=6, iid=False, n_jobs=-1)
+gs_clf = GridSearchCV(text_clf, parameters, cv=5, iid=False, n_jobs=-1)
 # Fit the pipeline on the training set using grid search for the parameters
 gs_clf = gs_clf.fit(docs_train[:6000], y_train[:6000])
 
@@ -81,9 +86,9 @@ for param_name in sorted(parameters.keys()):
 y_predicted = text_clf.predict(docs_test)
 
 # Print the classification report
+scores = cross_val_score(text_clf, docs_test, y_test, cv=5)
 print(metrics.classification_report(y_test, y_predicted, target_names=dataset.target_names))
-scores = cross_val_score(text_clf, y_test, docs_test, cv=6)
-print(scores);
+print(scores)
 print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 # Print and plot the confusion matrix
 cm = metrics.confusion_matrix(y_test, y_predicted)
